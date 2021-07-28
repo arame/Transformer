@@ -23,12 +23,7 @@ def main():
 
     # Load the BERT tokenizer.
     # 
-    is_loaded, t = Pickle.load(Constants.pickle_tokens_file)
-    if is_loaded == False:
-        t = TokensBert(X_train)
-        Pickle.save(Constants.pickle_tokens_file, t)
-        print(X_train.head())
-
+    t = Pickle.get_content(Constants.pickle_tokens_file, TokensBert, X_train)
 
     _date_time = time.strftime('%Y/%m/%d %H:%M:%S')
     print(f"** Ended at {_date_time} **")
