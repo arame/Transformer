@@ -28,8 +28,10 @@ class Constants:
     NEGATIVE = -1
     load_model = False
     save_model = True
-    backup_model_folder = "../backup"
+    backup_model_dir = "../backup"
     backup_model_path = "../backup/model"
+    pickle_dir = "../pickle"
+    pickle_tokens_file = "tokens.pkl"
 
     max_length = 50
     word_threshold = 8
