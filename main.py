@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from config import Hyper, Constants, Helper
 from sentiment import Sentiment
 from tokens_bert import TokensBert
-from transformers import BertTokenizer
+from pickle_file import Pickle
 
 def main():
     _date_time = time.strftime('%Y/%m/%d %H:%M:%S')
@@ -22,8 +22,13 @@ def main():
     s.print_balance()
 
     # Load the BERT tokenizer.
-    t = TokensBert(X_train)
-    print(X_train.head())
+    # 
+    is_loaded, t = Pickle.load(Constants.pickle_tokens_file)
+    if is_loaded == False:
+        t = TokensBert(X_train)
+        Pickle.save(Constants.pickle_tokens_file, t)
+        print(X_train.head())
+
 
     _date_time = time.strftime('%Y/%m/%d %H:%M:%S')
     print(f"** Ended at {_date_time} **")
