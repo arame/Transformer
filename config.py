@@ -1,4 +1,5 @@
 import torch as T
+import time
 
 class Hyper:
     total_epochs = 2
@@ -22,10 +23,9 @@ class Constants:
     HyrdatedTweetLangDir = f"../Summary_Details_files{time}/{language}"
     HyrdatedTweetFile = "tweets.csv"
     HyrdatedLangTweetFile = f"{language}_tweets.csv"
-    PAD = "<PAD>"
-    SOS = "<SOS>"   # Start Of Sentence
-    EOS = "<EOS>"   # End Of Sentence
-    UNK = "<UNK>"   # Unknown word
+    POSITIVE = 1
+    NEUTRAL = 0
+    NEGATIVE = -1
     load_model = False
     save_model = True
     backup_model_folder = "../backup"
@@ -39,3 +39,8 @@ class Constants:
     captions_val_file = "captions_val2017.json"
     instances_train_file = "instances_train2017.json"
     instances_val_file = "instances_val2017.json"
+
+class Helper:
+    def printline(text):
+        _date_time = time.strftime('%Y/%m/%d %H:%M:%S')
+        print(f"{_date_time}   {text}")
