@@ -3,7 +3,6 @@ from config import Hyper, Constants, Helper
 class Sentiment:
     def __init__(self, df) -> None:
         self.df = df
-        i = 0
 
     def print_balance(self):
         pos_sentiment = self.calc_sentiment_percentage(str(Constants.POSITIVE))
