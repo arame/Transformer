@@ -1,4 +1,5 @@
-from config import Hyper, Constants, Helper
+from config import Hyper, Constants
+from helper import Helper
 
 class Sentiment:
     def __init__(self, df) -> None:
@@ -7,8 +8,6 @@ class Sentiment:
     def print_balance(self):
         pos_sentiment = self.calc_sentiment_percentage(str(Constants.POSITIVE))
         Helper.printline(f"positive sentiment = {pos_sentiment} %")
-        neu_sentiment = self.calc_sentiment_percentage(str(Constants.NEUTRAL))
-        Helper.printline(f"neutral sentiment = {neu_sentiment} %")
         neg_sentiment = self.calc_sentiment_percentage(str(Constants.NEGATIVE))
         Helper.printline(f"negative sentiment = {neg_sentiment} %")
 

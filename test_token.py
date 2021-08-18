@@ -1,5 +1,5 @@
 from transformers import BertTokenizer
-from config import Helper
+from helper import Helper
 
 def main():
     # Load the BERT tokenizer.
@@ -11,10 +11,10 @@ def main():
     # the text into words, punctuation, and subwords as needed. 
     tokens = tokenizer.tokenize(text)
 
-    print(f'Comment 0 contains {len(tokens)} WordPiece tokens.')
-    print(str(' '.join(tokens)))
-    print('\nOriginal comment text:\n')
-    print(text)
+    Helper.printline(f'Comment 0 contains {len(tokens)} WordPiece tokens.')
+    Helper.printline(str(' '.join(tokens)))
+    Helper.printline('\nOriginal comment text:\n')
+    Helper.printline(text)
 
     
 
