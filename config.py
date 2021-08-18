@@ -2,10 +2,19 @@ import torch as T
 import time, os
 
 class Hyper:
-    total_epochs = 2
-    learning_rate = 1e-6
+    '''For the purposes of fine-tuning, the authors recommend choosing from the following values (from Appendix A.3 of the BERT paper):
+        Batch size: 16, 32
+        Learning rate (Adam): 5e-5, 3e-5, 2e-5
+        Number of epochs: 2, 3, 4
+        The epsilon parameter eps = 1e-8 is “a very small number to prevent any division by zero in the implementation”
+    '''
+    total_epochs = 4
+    learning_rate = 2e-5
     batch_size = 32
     dropout_rate = 0.5
+    num_labels = 2
+    model_name = "bert-base-cased"
+    eps = 1e-8 
 
     [staticmethod]
     def start():
@@ -19,18 +28,20 @@ class Hyper:
         print(f"Number of epochs = {Hyper.total_epochs}")
         print(f"Learning rate = {Hyper.learning_rate}")
         print(f"Batch_size = {Hyper.batch_size}")
+        print(f"dropout_rate = {Hyper.dropout_rate}")
+        print(f"num_labels = {Hyper.num_labels}")
 
 class Constants:
     device = T.device("cuda" if T.cuda.is_available() else "cpu")
-    time = "2021_07_17 15_50_29"
+    # Data_en_2021_08_08 22_58_57
+    time = "2021_08_08 22_58_57"
     version = 15
     language = "en"
-    HyrdatedTweetLangDir = f"../Summary_Details_files{time}/{language}"
+    HyrdatedTweetLangDir = f"../Data_{language}_{time}"
     HyrdatedTweetFile = "tweets.csv"
     HyrdatedLangTweetFile = f"{language}_tweets.csv"
     POSITIVE = 1
-    NEUTRAL = 0
-    NEGATIVE = -1
+    NEGATIVE = 0
     load_model = False
     save_model = True
     backup_dir = "../backup"
@@ -57,10 +68,3 @@ class Constants:
             return
 
         os.mkdir(directory)
-
-        
-
-class Helper:
-    def printline(text):
-        _date_time = time.strftime('%Y/%m/%d %H:%M:%S')
-        print(f"{_date_time}   {text}")
