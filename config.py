@@ -10,10 +10,10 @@ class Hyper:
     '''
     total_epochs = 4
     learning_rate = 2e-5
-    batch_size = 32
+    batch_size = 2
     dropout_rate = 0.5
     num_labels = 2
-    model_name = "bert-base-cased"
+    model_name = "bert-base-uncased"
     eps = 1e-8 
 
     [staticmethod]
@@ -34,12 +34,12 @@ class Hyper:
 class Constants:
     device = T.device("cuda" if T.cuda.is_available() else "cpu")
     # Data_en_2021_08_08 22_58_57
-    time = "2021_08_08 22_58_57"
+    time = "2021_08_11"
     version = 15
     language = "en"
-    HyrdatedTweetLangDir = f"../Data_{language}_{time}"
-    HyrdatedTweetFile = "tweets.csv"
-    HyrdatedLangTweetFile = f"{language}_tweets.csv"
+    #HyrdatedTweetLangDir = f"../Data_{language}_{time}"
+    HyrdatedTweetLangDir = f"../D/Summary_{language}_{time}"
+    HyrdatedLangTweetFile = f"{language}_lockdown_tweets.csv"
     POSITIVE = 1
     NEGATIVE = 0
     load_model = False
@@ -55,6 +55,8 @@ class Constants:
 
     tokens_max_length = 256     # reasonable maximum given tweets have a maximum of 280 characters
     word_threshold = 8
+    # Set the seed value all over the place to make this reproducible.
+    seed_val = 42
 
     [staticmethod]
     def check_directories():
