@@ -7,7 +7,6 @@ import time
 import random
 from transformers import BertForSequenceClassification, get_linear_schedule_with_warmup, AdamW
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
-from numpy.lib.shape_base import column_stack
 from sklearn.model_selection import train_test_split
 from config import Hyper, Constants
 from helper import Helper
@@ -140,10 +139,7 @@ def main():
             b_input_ids = batch[0].to(Constants.device)
             b_input_mask = batch[1].to(Constants.device)
             b_labels = batch[2].to(Constants.device)
-            Helper.printline(f"input_ids shape: {b_input_ids.shape}")
-            Helper.printline(f"input_mask shape: {b_input_mask.shape}")
-            Helper.printline(f"labels shape: {b_labels.shape}")
-            
+                      
             # Always clear any previously calculated gradients before performing a
             # backward pass. PyTorch doesn't do this automatically because 
             # accumulating the gradients is "convenient while training RNNs". 
@@ -172,7 +168,8 @@ def main():
             # calculate the average loss at the end. `loss` is a Tensor containing a
             # single value; the `.item()` function just returns the Python value 
             # from the tensor.
-            total_train_loss += loss.item()
+            _loss = loss.item()
+            total_train_loss += _loss
 
             # Perform a backward pass to calculate the gradients.
             loss.backward()
@@ -337,6 +334,4 @@ def show_first_2_parameters(p):
     Helper.printline(f"{p0} {p1}")
 
 if __name__ == "__main__":
-    x = T.rand(5, 3)
-    print(x)
     main()
