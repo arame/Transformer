@@ -6,7 +6,7 @@ class Country:
         self.df = df
 
     def print_balance(self):
-        for _country in range(len(Constants.selected_countries)):
+        for _country in Constants.selected_countries:
             self.print_balance_line(_country)
             
     def print_balance_line(self, _country):

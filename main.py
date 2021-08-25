@@ -129,7 +129,7 @@ def main():
         for step, batch in enumerate(train_dataloader):
 
             # Progress update every 40 batches.
-            if step % 40 == 0 and not step == 0:
+            if step % 100 == 0 and not step == 0:
                 # Calculate elapsed time in minutes.
                 elapsed = Helper.format_time(time.time() - t0)
                 
@@ -248,6 +248,7 @@ def main():
                 result = model(b_input_ids, 
                             token_type_ids=None, 
                             attention_mask=b_input_mask,
+                            labels=b_labels,
                             return_dict=True)
 
             # Get the loss and "logits" output by the model. The "logits" are the 
