@@ -1,3 +1,5 @@
+from country import Country
+from charts import Chart
 from tokens_bert import TokensBert
 import pandas as pd
 import numpy as np
@@ -20,13 +22,20 @@ def main():
     file = os.path.join(Constants.HyrdatedTweetLangDir, Constants.HyrdatedLangTweetFile)
     Helper.printline(f"Tweet file: {file}")
     df = pd.read_csv(file, sep=',', error_bad_lines=False, index_col=False, dtype="unicode")
+    Helper.printline(f"Before {df.shape[0]}")
+    _query = Helper.countries_query_builder()
+    df.query(_query, inplace=True)
+    Helper.printline(f"After {df.shape[0]}")
+    #Chart.show_country_distribution(df)
     X = list(df["clean_text"])
-    X = [_x.lower() for _x in X]
-    y = list(df["sentiment"].astype(int))
+    y = pd.factorize(df['Country'])[0].astype(int)
+    #y = list(df["sentiment"].astype(int))
     X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.20, random_state=1)
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.50, random_state=1)
-    s = Sentiment(df)
-    s.print_balance()
+    ''' s = Sentiment(df)
+    s.print_balance() '''
+    c = Country(df)
+    c.print_balance()
 
     # Load the BERT tokenizer.
     # The Pickle.get_content method loads the content from the pickle file if it exists
@@ -239,7 +248,6 @@ def main():
                 result = model(b_input_ids, 
                             token_type_ids=None, 
                             attention_mask=b_input_mask,
-                            labels=b_labels,
                             return_dict=True)
 
             # Get the loss and "logits" output by the model. The "logits" are the 
@@ -291,7 +299,7 @@ def main():
 def get_dataset(labels, data_enc):
     _inputs = get_tensor(data_enc, "input_ids")
     _masks = get_tensor(data_enc, "attention_mask")
-    _labels = T.tensor(labels)
+    _labels = T.tensor(labels, dtype=T.long)
     _dataset = TensorDataset(_inputs, _masks, _labels)
     return _dataset
 

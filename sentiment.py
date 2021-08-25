@@ -1,4 +1,4 @@
-from config import Hyper, Constants
+from config import Constants
 from helper import Helper
 
 class Sentiment:
