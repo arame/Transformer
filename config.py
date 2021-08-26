@@ -67,6 +67,7 @@ class Constants:
     load_model = False
     save_model = True
     backup_dir = "../backup"
+    backup_file = "model.pt"
     images_dir = "../Images"
     Tweet_length_graph = "tweet_length.png"
     country_distribution_graph = "country_distribution.png"

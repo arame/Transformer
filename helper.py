@@ -1,11 +1,19 @@
 
 from config import Constants
-import time, datetime
+import time, datetime, os
 
 class Helper:
     def printline(text):
         _date_time = time.strftime('%Y/%m/%d %H:%M:%S')
         print(f"{_date_time}   {text}")
+        
+    def check_folder(folder):
+        if os.path.isdir(folder) == False:
+            os.mkdir(folder)
+            
+    def remove_file(file):
+        if os.path.isfile(file):
+            os.remove(file)
         
     def format_time(elapsed):
         '''

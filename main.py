@@ -3,7 +3,7 @@ from charts import Chart
 from tokens_bert import TokensBert
 import pandas as pd
 import numpy as np
-import os
+import os, sys
 import torch as T
 import time
 import random
@@ -202,7 +202,7 @@ def main():
         training_time = Helper.format_time(time.time() - t0)
 
         Helper.printline("\n  Average training loss: {avg_train_loss}")
-        Helper.printline(f"  Training epcoh took: {training_time}")
+        Helper.printline(f"  Training epoch took: {training_time}")
             
         # ========================================
         #               Validation
@@ -293,6 +293,12 @@ def main():
                 'Validation Time': validation_time
             }
         )
+        
+        checkpoint = {'epoch': epoch_i, 
+            "model_state_dict": model.state_dict(), 
+            "optimizer_state_dict": optimizer.state_dict(),
+            "loss": loss}
+        save_checkpoint(checkpoint)
 
     Helper.printline("Total training took {:} (h:mm:ss)".format(Helper.format_time(time.time()-total_t0)))
     Helper.printline("** Ended **")
@@ -321,6 +327,29 @@ def set_seed():
     T.manual_seed(Constants.seed_val)
     T.cuda.manual_seed_all(Constants.seed_val)
 
+def save_checkpoint(checkpoint):
+    Helper.check_folder(Constants.backup_dir)
+    file = get_backup_filename()
+    Helper.remove_file(file)
+    Helper.printline("=> Saving checkpoint")
+    T.save(checkpoint, file)
+
+def load_checkpoint(model, optimizer):
+    Helper.printline("=> Loading checkpoint")
+    file = get_backup_filename()
+    if os.path.isfile(file) == False:
+        sys.exit(f"!! Backup file does not exist for loading: {file}")
+        
+    checkpoint = T.load(file)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+    epoch = checkpoint["epoch"]
+    return epoch
+
+def get_backup_filename():
+    file = os.path.join(Constants.backup_dir, Constants.backup_file)
+    return file
+    
 def show_model_stats(model):
     # Get all of the model's parameters as a list of tuples.
     params = list(model.named_parameters())
