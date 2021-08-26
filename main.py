@@ -150,14 +150,14 @@ def main():
     # Take the highest scoring output as the predicted label.
     predicted_labels = np.argmax(predictions, axis=1)
 
-    Helper.printline('`predictions` has shape', predictions.shape)
-    Helper.printline('`predicted_labels` has shape', predicted_labels.shape)
+    Helper.printline(f'`predictions` has shape {predictions.shape}')
+    Helper.printline(f'`predicted_labels` has shape {predicted_labels.shape}')
     
     # Reduce printing precision for legibility.
     np.set_printoptions(precision=2)
 
-    Helper.printline("Predicted:", str(predicted_labels[0:10]))
-    Helper.printline("  Correct:", str(true_labels[0:10]))
+    Helper.printline(f"Predicted: {str(predicted_labels[0:10])}")
+    Helper.printline(f"  Correct: {str(true_labels[0:10])}")
     # Use the F1 metric to score our classifier's performance on the test set.
     score = metrics.f1_score(true_labels, predicted_labels, average='macro')
 
