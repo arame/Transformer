@@ -39,6 +39,8 @@ class Hyper:
         print(f"Batch_size = {Hyper.batch_size}")
         print(f"dropout_rate = {Hyper.dropout_rate}")
         print(f"num_labels = {Hyper.num_labels}")
+        selected_countries = ", ".join(Constants.selected_countries)
+        print(f"Countries selected are: {selected_countries}")
         
     [staticmethod]
     def check_directories():
@@ -71,6 +73,7 @@ class Constants:
     images_dir = "../Images"
     Tweet_length_graph = "tweet_length.png"
     country_distribution_graph = "country_distribution.png"
+    training_validation_loss_graph = "training_validation_loss.png"
     backup_model_dir = "../backup/model"
     pickle_dir = "../pickle"            
     pickle_tokens_file = "tokens.pkl"

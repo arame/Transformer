@@ -11,7 +11,6 @@ class Chart:
         sns.set(font_scale=1.5)
         plt.rcParams["figure.figsize"] = (15,10)
 
-
         # Plot the number of tokens of each length.
         sns.countplot(y=df["Country"], order = df['Country'].value_counts().index)
         plt.title('Country Distribution')
@@ -39,3 +38,22 @@ class Chart:
         plt.ylabel('# of Tweets') 
         chart_tweet_tokens = os.path.join(Constants.images_dir, Constants.Tweet_length_graph)
         plt.savefig(chart_tweet_tokens)
+
+    def show_training_stats(df_stats):
+        sns.set(style='darkgrid')
+
+        # Increase the plot size and font size.
+        sns.set(font_scale=1.5)
+        plt.rcParams["figure.figsize"] = (15,10) 
+        # Plot the learning curve.
+        plt.plot(df_stats['Training Loss'], 'b-o', label="Training")
+        plt.plot(df_stats['Valid. Loss'], 'g-o', label="Validation")
+
+        # Label the plot.
+        plt.title("Training & Validation loss")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.legend()
+        plt.xticks([1, 2, 3, 4]) 
+        chart_tweet_tokens = os.path.join(Constants.images_dir, Constants.training_validation_loss_graph)
+        plt.savefig(chart_tweet_tokens)      
