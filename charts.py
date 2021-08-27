@@ -16,8 +16,8 @@ class Chart:
         plt.title('Country Distribution')
         plt.xlabel('# of Tweets')
         plt.ylabel('')
-        country_distribution = os.path.join(Constants.images_dir, Constants.country_distribution_graph)
-        plt.savefig(country_distribution)      
+        chart = os.path.join(Constants.images_dir, Constants.country_distribution_graph)
+        plt.savefig(chart)      
         
     def show_tokens_per_tweet(token_lengths):
         # print graph of tweet token lengths
@@ -36,8 +36,8 @@ class Chart:
         plt.title('Tweet Lengths')
         plt.xlabel('Tweet Length')
         plt.ylabel('# of Tweets') 
-        chart_tweet_tokens = os.path.join(Constants.images_dir, Constants.Tweet_length_graph)
-        plt.savefig(chart_tweet_tokens)
+        chart = os.path.join(Constants.images_dir, Constants.Tweet_length_graph)
+        plt.savefig(chart)
 
     def show_training_stats(df_stats):
         sns.set(style='darkgrid')
@@ -55,5 +55,5 @@ class Chart:
         plt.ylabel("Loss")
         plt.legend()
         plt.xticks([1, 2, 3, 4]) 
-        chart_tweet_tokens = os.path.join(Constants.images_dir, Constants.training_validation_loss_graph)
-        plt.savefig(chart_tweet_tokens)      
+        chart = os.path.join(Constants.images_dir, Constants.training_validation_loss_graph)
+        plt.savefig(chart)      

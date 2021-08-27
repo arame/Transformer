@@ -1,20 +1,18 @@
-import torch as T
 import time
-import pandas as pd
-import numpy as np
 from transformers import BertForSequenceClassification, get_linear_schedule_with_warmup, AdamW
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from config import Hyper, Constants
 from helper import Helper
 from data_input import get_datasets
 from checkpoint import save_checkpoint, load_checkpoint
-from model import training, validation, display_training_stats
-from sklearn import metrics
+from model import training, validation, test_model_for_metrics
+
 
 def main():
     Helper.printline("** Started **")
     Hyper.start()
-    train_dataset, val_dataset, test_dataset = get_datasets()
+    #---------- DATA -------------# 
+    train_dataset, val_dataset, test_dataset, country_key, country_label_list = get_datasets()
     
     train_dataloader = DataLoader(
             train_dataset,  # The training samples.
@@ -71,11 +69,11 @@ def main():
     # For each epoch...
     for epoch_i in range(0, Hyper.total_epochs):
         epoch = epoch_i + 1
-        
+        #---------- TRAINING -------------#
         avg_train_loss, training_time, model = training(train_dataloader, model, optimizer, scheduler, epoch)
-            
+        #---------- VALIDATION -------------#    
         loss, training_stats = validation(validation_dataloader, model, training_stats, epoch, avg_train_loss, training_time)
-        
+        #---------- SAVE MODEL -------------#
         # Epoch completed, save model
         checkpoint = {'epoch': epoch_i, 
             "model_state_dict": model.state_dict(), 
@@ -84,86 +82,11 @@ def main():
         save_checkpoint(checkpoint)
     
     Helper.time_lapse(total_t0)
-    Helper.printline("Total training took {total_time} (h:mm:ss)") 
-       
-    # Create a DataFrame from our training statistics.
-    df_stats = pd.DataFrame(data=training_stats)
-    # Use the 'epoch' as the row index.
-    df_stats = df_stats.set_index('epoch')
-    display_training_stats(df_stats)
-    
-    # Evaluate the model via the test data
-    # ------------------------------------
-    # For test the order doesn't matter, so we'll just read them sequentially.
-    test_dataloader = DataLoader(
-                test_dataset, # The validation samples.
-                sampler = SequentialSampler(test_dataset), # Pull out batches sequentially.
-                batch_size = Hyper.batch_size # Evaluate with this batch size.
-            )
-    
-    model.eval()
-    # Tracking variables 
-    predictions , true_labels = [], []
+    Helper.printline("Total training took {total_time}") 
+    #---------- TESTING AND METRICS -------------#  
+    test_model_for_metrics(test_dataset, country_key, country_label_list, model, training_stats)
 
-    # Measure elapsed time.
-    t0 = time.time()
-
-    # Predict 
-    for (step, batch) in enumerate(test_dataloader):
-        
-        # Add batch to GPU
-        batch = tuple(t.to(Constants.device) for t in batch)
-    
-        # Progress update every 50 batches.
-        if step % 50 == 0 and not step == 0:
-            # Calculate elapsed time in minutes.
-            elapsed = Helper.time_lapse(t0)
-            
-            # Report progress.
-            print('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.'.format(step, len(test_dataloader), elapsed))
-
-
-        # Unpack the inputs from our dataloader
-        b_input_ids, b_input_mask, b_labels = batch
-    
-        # Telling the model not to compute or store the compute graph, saving memory
-        # and speeding up prediction
-        with T.no_grad():
-            # Forward pass, calculate logit predictions
-            outputs = model(b_input_ids, token_type_ids=None, 
-                            attention_mask=b_input_mask)
-
-        logits = outputs[0]
-
-        # Move logits and labels to CPU
-        logits = logits.detach().cpu().numpy()
-        label_ids = b_labels.to('cpu').numpy()
-    
-        # Store predictions and true labels
-        predictions.append(logits)
-        true_labels.append(label_ids)
-
-    # Combine the results across the batches.
-    predictions = np.concatenate(predictions, axis=0)
-    true_labels = np.concatenate(true_labels, axis=0)
-
-    # Take the highest scoring output as the predicted label.
-    predicted_labels = np.argmax(predictions, axis=1)
-
-    Helper.printline(f'`predictions` has shape {predictions.shape}')
-    Helper.printline(f'`predicted_labels` has shape {predicted_labels.shape}')
-    
-    # Reduce printing precision for legibility.
-    np.set_printoptions(precision=2)
-
-    Helper.printline(f"Predicted: {str(predicted_labels[0:10])}")
-    Helper.printline(f"  Correct: {str(true_labels[0:10])}")
-    # Use the F1 metric to score our classifier's performance on the test set.
-    score = metrics.f1_score(true_labels, predicted_labels, average='macro')
-
-    # Print the F1 score!
-    Helper.printline('F1 score: {:.3}'.format(score))
-    Helper.printline("** Ended **")
+    Helper.printlines("** Ended **", 2)
 
 def show_model_stats(model):
     # Get all of the model's parameters as a list of tuples.

@@ -4,6 +4,9 @@ import time
 import torch as T
 import numpy as np
 import pandas as pd
+from sklearn import metrics
+from charts import Chart
+from torch.utils.data import DataLoader, SequentialSampler
 
 def training(train_dataloader, model, optimizer, scheduler, epoch):
     # ========================================
@@ -205,3 +208,84 @@ def display_training_stats(df_stats):
 
     # Display the table.
     print(df_stats.to_markdown())
+
+def test_model_for_metrics(test_dataset, country_key, country_label_list, model, training_stats):
+    # Create a DataFrame from our training statistics.
+    df_stats = pd.DataFrame(data=training_stats)
+    # Use the 'epoch' as the row index.
+    df_stats = df_stats.set_index('epoch')
+    display_training_stats(df_stats)
+    Chart.show_training_stats(df_stats)
+    
+    # Evaluate the model via the test data
+    # ------------------------------------
+    # For test the order doesn't matter, so we'll just read them sequentially.
+    test_dataloader = DataLoader(
+                test_dataset, # The validation samples.
+                sampler = SequentialSampler(test_dataset), # Pull out batches sequentially.
+                batch_size = Hyper.batch_size # Evaluate with this batch size.
+            )
+    
+    model.eval()
+    # Tracking variables 
+    predictions , true_labels = [], []
+
+    # Measure elapsed time.
+    t0 = time.time()
+
+    # Predict 
+    for (step, batch) in enumerate(test_dataloader):
+        # Add batch to GPU
+        batch = tuple(t.to(Constants.device) for t in batch)
+
+        if step % 50 == 0 and not step == 0:
+            # Report progress.
+            print(f'  Batch {step}  of  {len(test_dataloader)}.    Elapsed: {Helper.time_lapse(t0)}.')
+
+        # Unpack the inputs from our dataloader
+        b_input_ids, b_input_mask, b_labels = batch
+    
+        # Telling the model not to compute or store the compute graph, saving memory
+        # and speeding up prediction
+        with T.no_grad():
+            # Forward pass, calculate logit predictions
+            outputs = model(b_input_ids, token_type_ids=None, 
+                            attention_mask=b_input_mask)
+
+        logits = outputs[0]
+
+        # Move logits and labels to CPU
+        logits = logits.detach().cpu().numpy()
+        label_ids = b_labels.to('cpu').numpy()
+    
+        # Store predictions and true labels
+        predictions.append(logits)
+        true_labels.append(label_ids)
+
+    # Combine the results across the batches.
+    predictions = np.concatenate(predictions, axis=0)
+    true_labels = np.concatenate(true_labels, axis=0)
+
+    # Take the highest scoring output as the predicted label.
+    predicted_labels = np.argmax(predictions, axis=1)
+    
+    # Reduce printing precision for legibility.
+    np.set_printoptions(precision=2)
+
+    Helper.printline(country_key)
+    Helper.printline(f"Predicted: {str(predicted_labels[0:20])}")
+    Helper.printline(f"  Correct: {str(true_labels[0:20])}")
+    
+    # Confusion matrix will show where the mismatches are between predictions and true values
+    matrix = metrics.confusion_matrix(true_labels, predicted_labels, country_label_list)
+    Helper.printlines("Confusion matrix", 2)
+    Helper.printline(matrix) 
+       
+    # Calculate the accuracy and precision scores
+    accuracy_score = metrics.accuracy_score(true_labels, predicted_labels)
+    precision_score = metrics.precision_score(true_labels, predicted_labels)
+    Helper.printlines(f"Accuracy score: {accuracy_score}. Precision score: {precision_score}")
+    
+    # Use the F1 metric to score our classifier's performance on the test set.
+    f1_score = metrics.f1_score(true_labels, predicted_labels, average='macro')
+    Helper.printline('F1 score: {f1_score}')

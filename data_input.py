@@ -11,6 +11,7 @@ from helper import Helper
 from tokens_bert import TokensBert
 from pickle_file import Pickle
 from sklearn import preprocessing
+from charts import Chart
 
 def get_datasets():
     file = os.path.join(Constants.HyrdatedTweetLangDir, Constants.HyrdatedLangTweetFile)
@@ -20,12 +21,12 @@ def get_datasets():
     _query = Helper.countries_query_builder()
     df.query(_query, inplace=True)
     Helper.printline(f"After {df.shape[0]}")
-    #Chart.show_country_distribution(df)
+    Chart.show_country_distribution(df)
     X_clean_text = list(df["clean_text"])
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df['Country'])
     y_country = label_encoder.transform(df['Country'])  # Get a numberic representation of the country names for the labels
-    #countries = label_encoder.inverse_transform(y_country) # Get the country from the numeric representation
+    country_key, country_label_list = country_key_text(label_encoder, y_country)
     #y_sent = list(df["sentiment"].astype(int))
     X_train, X_val, y_train, y_val = train_test_split(X_clean_text, y_country, test_size=0.10, random_state=1)
     
@@ -63,7 +64,15 @@ def get_datasets():
     val_size = len(val_dataset)
     test_size = len(test_dataset)
     Helper.printline(f"Dataset sizes: train {train_size}, val {val_size}, test {test_size}")
-    return train_dataset, val_dataset, test_dataset
+    return train_dataset, val_dataset, test_dataset, country_key, country_label_list
+
+def country_key_text(label_encoder, y_country):
+    country_label_list = [i for i in range(max(y_country) + 1)]
+    country_list = label_encoder.inverse_transform(country_label_list)
+    country_text = [f"{i}: {country_list[i]}" for i in range(max(y_country) + 1)]
+    country_names = ", ".join(country_text)
+    country_key = f"Country key/values: {country_names}"
+    return country_key, country_list, country_label_list
 
 def get_dataset(labels, data_enc):
     _inputs = get_tensor(data_enc, "input_ids")
