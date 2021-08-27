@@ -278,13 +278,23 @@ def test_model_for_metrics(test_dataset, country_key, country_label_list, model,
     
     # Confusion matrix will show where the mismatches are between predictions and true values
     matrix = metrics.confusion_matrix(true_labels, predicted_labels, country_label_list)
-    Helper.printlines("Confusion matrix", 2)
-    Helper.printline(matrix) 
+    print("Confusion matrix")
+    print(matrix) 
        
-    # Calculate the accuracy and precision scores
-    accuracy_score = metrics.accuracy_score(true_labels, predicted_labels)
-    precision_score = metrics.precision_score(true_labels, predicted_labels)
-    Helper.printlines(f"Accuracy score: {accuracy_score}. Precision score: {precision_score}")
+    '''The precision is the ratio ``tp /(tp + fp)`` where ``tp`` is the number of
+    true positives and ``fp`` the number of false positives. The precision is
+    intuitively the ability of the classifier not to label as positive a sample
+    that is negative.
+
+    The best value is 1 and the worst value is 0.'''
+    precision_score = metrics.precision_score(true_labels, predicted_labels, average='macro')
+    '''The recall is the ratio ``tp / (tp + fn)`` where ``tp`` is the number of
+    true positives and ``fn`` the number of false negatives. The recall is
+    intuitively the ability of the classifier to find all the positive samples.
+
+    The best value is 1 and the worst value is 0.'''
+    recall_score = metrics.recall_score(true_labels, predicted_labels, average='macro')
+    Helper.printlines(f"Recall score: {recall_score}. Precision score: {precision_score}")
     
     # Use the F1 metric to score our classifier's performance on the test set.
     f1_score = metrics.f1_score(true_labels, predicted_labels, average='macro')

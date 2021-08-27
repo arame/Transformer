@@ -72,7 +72,7 @@ def country_key_text(label_encoder, y_country):
     country_text = [f"{i}: {country_list[i]}" for i in range(max(y_country) + 1)]
     country_names = ", ".join(country_text)
     country_key = f"Country key/values: {country_names}"
-    return country_key, country_list, country_label_list
+    return country_key, country_label_list
 
 def get_dataset(labels, data_enc):
     _inputs = get_tensor(data_enc, "input_ids")
