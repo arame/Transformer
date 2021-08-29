@@ -1,5 +1,6 @@
 from helper import Helper
 from config import Hyper, Constants
+from transformers import BertTokenizer
 import time
 import torch as T
 import numpy as np
@@ -209,7 +210,7 @@ def display_training_stats(df_stats):
     # Display the table.
     print(df_stats.to_markdown())
 
-def test_model_for_metrics(test_dataset, country_key, country_label_list, model, training_stats):
+def test_model_for_metrics(test_dataset, country_key, country_label_list, country_list, model, training_stats):
     # Create a DataFrame from our training statistics.
     df_stats = pd.DataFrame(data=training_stats)
     # Use the 'epoch' as the row index.
@@ -228,7 +229,7 @@ def test_model_for_metrics(test_dataset, country_key, country_label_list, model,
     
     model.eval()
     # Tracking variables 
-    predictions , true_labels = [], []
+    predictions , true_labels, input_ids = [], [], []
 
     # Measure elapsed time.
     t0 = time.time()
@@ -257,18 +258,24 @@ def test_model_for_metrics(test_dataset, country_key, country_label_list, model,
         # Move logits and labels to CPU
         logits = logits.detach().cpu().numpy()
         label_ids = b_labels.to('cpu').numpy()
-    
+        input_ids = b_input_ids.to('cpu').numpy()
         # Store predictions and true labels
         predictions.append(logits)
         true_labels.append(label_ids)
+        
+
 
     # Combine the results across the batches.
     predictions = np.concatenate(predictions, axis=0)
     true_labels = np.concatenate(true_labels, axis=0)
-
     # Take the highest scoring output as the predicted label.
     predicted_labels = np.argmax(predictions, axis=1)
     
+    Helper.printlines(f"Example tweets and classifications", 2)
+    tokenizer = BertTokenizer.from_pretrained(Hyper.model_name)
+    upper = min(5, len(input_ids))
+    for i in range(upper):
+        print_results_from_tokens(tokenizer, input_ids[i], predicted_labels[i], true_labels[i], country_list)
     # Reduce printing precision for legibility.
     np.set_printoptions(precision=2)
 
@@ -294,8 +301,15 @@ def test_model_for_metrics(test_dataset, country_key, country_label_list, model,
 
     The best value is 1 and the worst value is 0.'''
     recall_score = metrics.recall_score(true_labels, predicted_labels, average='macro')
-    Helper.printlines(f"Recall score: {recall_score}. Precision score: {precision_score}")
+    Helper.printline(f"Recall score: {recall_score}. Precision score: {precision_score}")
     
     # Use the F1 metric to score our classifier's performance on the test set.
     f1_score = metrics.f1_score(true_labels, predicted_labels, average='macro')
-    Helper.printline('F1 score: {f1_score}')
+    Helper.printline(f'F1 score: {f1_score}')
+    
+def print_results_from_tokens(tokenizer, input_token_ids, prediction_label, true_label, country_list):
+    tweet = tokenizer.decode(input_token_ids)
+    tweet = tweet.replace("[PAD] ", "")
+    Helper.printline(f"Predicted: {country_list[prediction_label]}, Actual: {country_list[true_label]}")
+    Helper.printline(f"Tweet: {tweet}")
+    
