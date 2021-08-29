@@ -12,7 +12,7 @@ def main():
     Helper.printline("** Started **")
     Hyper.start()
     #---------- DATA -------------# 
-    train_dataset, val_dataset, test_dataset, country_key, country_label_list = get_datasets()
+    train_dataset, val_dataset, test_dataset, country_key, country_label_list, country_list = get_datasets()
     
     train_dataloader = DataLoader(
             train_dataset,  # The training samples.
@@ -84,7 +84,7 @@ def main():
     Helper.time_lapse(total_t0)
     Helper.printline("Total training took {total_time}") 
     #---------- TESTING AND METRICS -------------#  
-    test_model_for_metrics(test_dataset, country_key, country_label_list, model, training_stats)
+    test_model_for_metrics(test_dataset, country_key, country_label_list, country_list, model, training_stats)
 
     Helper.printlines("** Ended **", 2)
 

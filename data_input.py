@@ -26,7 +26,7 @@ def get_datasets():
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(df['Country'])
     y_country = label_encoder.transform(df['Country'])  # Get a numberic representation of the country names for the labels
-    country_key, country_label_list = country_key_text(label_encoder, y_country)
+    country_key, country_label_list, country_list = country_key_text(label_encoder, y_country)
     #y_sent = list(df["sentiment"].astype(int))
     X_train, X_val, y_train, y_val = train_test_split(X_clean_text, y_country, test_size=0.10, random_state=1)
     
@@ -64,7 +64,7 @@ def get_datasets():
     val_size = len(val_dataset)
     test_size = len(test_dataset)
     Helper.printline(f"Dataset sizes: train {train_size}, val {val_size}, test {test_size}")
-    return train_dataset, val_dataset, test_dataset, country_key, country_label_list
+    return train_dataset, val_dataset, test_dataset, country_key, country_label_list, country_list
 
 def country_key_text(label_encoder, y_country):
     country_label_list = [i for i in range(max(y_country) + 1)]
@@ -72,7 +72,7 @@ def country_key_text(label_encoder, y_country):
     country_text = [f"{i}: {country_list[i]}" for i in range(max(y_country) + 1)]
     country_names = ", ".join(country_text)
     country_key = f"Country key/values: {country_names}"
-    return country_key, country_label_list
+    return country_key, country_label_list, country_list
 
 def get_dataset(labels, data_enc):
     _inputs = get_tensor(data_enc, "input_ids")

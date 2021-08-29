@@ -64,6 +64,7 @@ class Constants:
     #HyrdatedTweetLangDir = f"../Data_{language}_{date}"
     HyrdatedTweetLangDir = f"../E/Summary_{language}_{date}"
     HyrdatedLangTweetFile = f"{language}_lockdown_tweets.csv"
+    #HyrdatedLangTweetFile = f"{language}_facemask_tweets.csv"
     POSITIVE = 1
     NEGATIVE = 0
     load_model = False
