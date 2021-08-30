@@ -210,14 +210,15 @@ def display_training_stats(df_stats):
     # Display the table.
     print(df_stats.to_markdown())
 
-def test_model_for_metrics(test_dataset, country_key, country_label_list, country_list, model, training_stats):
+def show_training_stats(training_stats):
     # Create a DataFrame from our training statistics.
     df_stats = pd.DataFrame(data=training_stats)
     # Use the 'epoch' as the row index.
     df_stats = df_stats.set_index('epoch')
     display_training_stats(df_stats)
-    Chart.show_training_stats(df_stats)
-    
+    Chart.show_training_stats(df_stats) 
+       
+def test_model_for_metrics(test_dataset, combined_key, combined_label_list, combined_list, model):
     # Evaluate the model via the test data
     # ------------------------------------
     # For test the order doesn't matter, so we'll just read them sequentially.
@@ -262,8 +263,6 @@ def test_model_for_metrics(test_dataset, country_key, country_label_list, countr
         # Store predictions and true labels
         predictions.append(logits)
         true_labels.append(label_ids)
-        
-
 
     # Combine the results across the batches.
     predictions = np.concatenate(predictions, axis=0)
@@ -273,21 +272,23 @@ def test_model_for_metrics(test_dataset, country_key, country_label_list, countr
     
     Helper.printlines(f"Example tweets and classifications", 2)
     tokenizer = BertTokenizer.from_pretrained(Hyper.model_name)
-    upper = min(5, len(input_ids))
-    for i in range(upper):
-        print_results_from_tokens(tokenizer, input_ids[i], predicted_labels[i], true_labels[i], country_list)
+    # print out up to 5 tweets, their estimated country and their actual country
+    no_tweets_to_display = min(5, len(input_ids))
+    for i in range(no_tweets_to_display):
+        print_results_from_tokens(tokenizer, input_ids[i], predicted_labels[i], true_labels[i], combined_list)
     # Reduce printing precision for legibility.
     np.set_printoptions(precision=2)
 
-    Helper.printline(country_key)
+    Helper.printline(combined_key)
     Helper.printline(f"Predicted: {str(predicted_labels[0:20])}")
     Helper.printline(f"  Correct: {str(true_labels[0:20])}")
     
     # Confusion matrix will show where the mismatches are between predictions and true values
-    matrix = metrics.confusion_matrix(true_labels, predicted_labels, country_label_list)
+    matrix = metrics.confusion_matrix(true_labels, predicted_labels, combined_label_list)
+    # Print the confusion matrix without using the helper method
     print("Confusion matrix")
     print(matrix) 
-       
+    Chart.show_confusion_matrix(matrix, combined_list)   
     '''The precision is the ratio ``tp /(tp + fp)`` where ``tp`` is the number of
     true positives and ``fp`` the number of false positives. The precision is
     intuitively the ability of the classifier not to label as positive a sample

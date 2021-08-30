@@ -1,5 +1,5 @@
 
-from config import Constants
+from config import Constants, Hyper
 import time, datetime, os, random
 import numpy as np
 import torch as T
@@ -39,12 +39,12 @@ class Helper:
         return str(datetime.timedelta(seconds=elapsed_rounded))
     
     def countries_query_builder():
-        if len(Constants.selected_countries) == 0:
+        if len(Hyper.selected_countries) == 0:
             return ""
         
         text = []
         sep = " or "
-        for country in Constants.selected_countries:
+        for country in Hyper.selected_countries:
             text.append(f'Country == "{country}"')
         query = sep.join(text)
         return query

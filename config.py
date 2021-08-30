@@ -12,7 +12,9 @@ class Hyper:
     learning_rate = 2e-5
     batch_size = 2
     dropout_rate = 0.5
-    num_labels = 3
+    #selected_countries = ["India", "United States", "United Kingdom", "South Africa", "Australia", "Canada", "Pakistan"]
+    selected_countries = ["India", "United States", "United Kingdom"]
+    num_labels = len(selected_countries) * 2    # The number of labels is the number of countries * number of sentiments (ie 2)
     # try models:
     # bert-base-uncased
     # distilbert-base-uncased
@@ -24,6 +26,7 @@ class Hyper:
     model_name = "bert-base-uncased"
     eps = 1e-8 
     use_pickle = False
+    is_load = True
 
     [staticmethod]
     def start():
@@ -39,7 +42,7 @@ class Hyper:
         print(f"Batch_size = {Hyper.batch_size}")
         print(f"dropout_rate = {Hyper.dropout_rate}")
         print(f"num_labels = {Hyper.num_labels}")
-        selected_countries = ", ".join(Constants.selected_countries)
+        selected_countries = ", ".join(Hyper.selected_countries)
         print(f"Countries selected are: {selected_countries}")
         
     [staticmethod]
@@ -69,19 +72,21 @@ class Constants:
     NEGATIVE = 0
     load_model = False
     save_model = True
-    backup_dir = "../backup"
+    backup_dir = "../E/backup"
     backup_file = "model.pt"
-    images_dir = "../Images"
+    images_dir = "../E/Images"
     Tweet_length_graph = "tweet_length.png"
     country_distribution_graph = "country_distribution.png"
+    sentiment_distribution_graph = "sentiment_distribution.png"
+    combined_distribution_graph = "combined_distribution.png"
     training_validation_loss_graph = "training_validation_loss.png"
-    backup_model_dir = "../backup/model"
-    pickle_dir = "../pickle"            
+    confususion_matrix_graph = "confusion_matrix.png"
+    backup_model_dir = "../E/backup/model"
+    pickle_dir = "../E/pickle"            
     pickle_tokens_file = "tokens.pkl"
     pickle_train_encodings_file = "encodings_train.pkl"
     pickle_val_encodings_file = "encodings_val.pkl"
-    #selected_countries = ["India", "United States", "United Kingdom", "South Africa", "Australia", "Canada", "Pakistan"]
-    selected_countries = ["India", "United States", "United Kingdom"]
+
     
     tokens_max_length = 256     # reasonable maximum given tweets have a maximum of 280 characters
     word_threshold = 8

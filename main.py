@@ -1,19 +1,42 @@
-import time
+import time, sys
 from transformers import BertForSequenceClassification, get_linear_schedule_with_warmup, AdamW
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from config import Hyper, Constants
 from helper import Helper
 from data_input import get_datasets
 from checkpoint import save_checkpoint, load_checkpoint
-from model import training, validation, test_model_for_metrics
+from model import training, validation, test_model_for_metrics, show_training_stats
 
 
 def main():
     Helper.printline("** Started **")
     Hyper.start()
     #---------- DATA -------------# 
-    train_dataset, val_dataset, test_dataset, country_key, country_label_list, country_list = get_datasets()
+    train_dataset, val_dataset, test_dataset, combined_key, combined_label_list, combined_list = get_datasets()
     
+    # Load BertForSequenceClassification, the pretrained BERT model with a single 
+    # linear classification layer on top. 
+    model = BertForSequenceClassification.from_pretrained(
+        Hyper.model_name,               # Use the 12-layer BERT model, with an uncased vocab.
+        num_labels = Hyper.num_labels,  # Labels are either positive or negative sentiment.   
+        output_attentions = False,      # Do not return attentions weights.
+        output_hidden_states = False,   # Do not return all hidden-states.
+    )
+    # Note: AdamW is a class from the huggingface library (as opposed to pytorch) 
+    # I believe the 'W' stands for 'Weight Decay fix"
+    optimizer = AdamW(model.parameters(),
+                  lr = Hyper.learning_rate, # args.learning_rate - default is 5e-5, in the Hyper class we use 2e-5
+                  eps = Hyper.eps           # args.adam_epsilon  - default is 1e-8 which we also use.
+                )
+    
+    if Hyper.is_load:
+        # The model has been trained, but we want to test it again
+        epoch, model = load_checkpoint(model, optimizer)
+        model.cuda()
+        test_model_for_metrics(test_dataset, combined_key, combined_label_list, combined_list, model)
+        Helper.printline("** Ended **")
+        sys.exit()
+        
     train_dataloader = DataLoader(
             train_dataset,  # The training samples.
             sampler = RandomSampler(train_dataset), # Select batches randomly
@@ -26,26 +49,12 @@ def main():
                 sampler = SequentialSampler(val_dataset), # Pull out batches sequentially.
                 batch_size = Hyper.batch_size # Evaluate with this batch size.
             )
-    
-    # Load BertForSequenceClassification, the pretrained BERT model with a single 
-    # linear classification layer on top. 
-    model = BertForSequenceClassification.from_pretrained(
-        Hyper.model_name,               # Use the 12-layer BERT model, with a cased vocab.
-        num_labels = Hyper.num_labels,  # Labels are either positive or negative sentiment.   
-        output_attentions = False,      # Do not return attentions weights.
-        output_hidden_states = False,   # Do not return all hidden-states.
-    )
 
     # Tell pytorch to run this model on the GPU.
     model.cuda()
     show_model_stats(model)
     
-    # Note: AdamW is a class from the huggingface library (as opposed to pytorch) 
-    # I believe the 'W' stands for 'Weight Decay fix"
-    optimizer = AdamW(model.parameters(),
-                  lr = Hyper.learning_rate, # args.learning_rate - default is 5e-5, in the Hyper class we use 2e-5
-                  eps = Hyper.eps           # args.adam_epsilon  - default is 1e-8 which we also use.
-                )
+
     # Total number of training steps is [number of batches] x [number of epochs]. 
     # (Note that this is not the same as the number of training samples).
     total_steps = len(train_dataloader) * Hyper.total_epochs
@@ -80,11 +89,11 @@ def main():
             "optimizer_state_dict": optimizer.state_dict(),
             "loss": loss}
         save_checkpoint(checkpoint)
-    
-    Helper.time_lapse(total_t0)
-    Helper.printline("Total training took {total_time}") 
-    #---------- TESTING AND METRICS -------------#  
-    test_model_for_metrics(test_dataset, country_key, country_label_list, country_list, model, training_stats)
+
+    Helper.printline(f"Total training took {Helper.time_lapse(total_t0)}") 
+    #---------- TESTING AND METRICS -------------# 
+    show_training_stats(training_stats) 
+    test_model_for_metrics(test_dataset, combined_key, combined_label_list, combined_list, model, training_stats)
 
     Helper.printlines("** Ended **", 2)
 

@@ -12,30 +12,40 @@ from tokens_bert import TokensBert
 from pickle_file import Pickle
 from sklearn import preprocessing
 from charts import Chart
+from wordcloud_per_country import WordcloudCountry
 
 def get_datasets():
     file = os.path.join(Constants.HyrdatedTweetLangDir, Constants.HyrdatedLangTweetFile)
     Helper.printline(f"Tweet file: {file}")
     df = pd.read_csv(file, sep=',', error_bad_lines=False, index_col=False, dtype="unicode")
+    cloud = WordcloudCountry(df)
+    cloud.calculate()
     Helper.printline(f"Before {df.shape[0]}")
+    # Get the data only for the selected countries
     _query = Helper.countries_query_builder()
     df.query(_query, inplace=True)
     Helper.printline(f"After {df.shape[0]}")
+    # show the distribution of data between countries, sentiment and both combined
     Chart.show_country_distribution(df)
+    Chart.show_sentiment_distribution(df)
+    y_combined = df["Country"] + " " + df["sentiment"]
+    Chart.show_combined_distribution(y_combined)
     X_clean_text = list(df["clean_text"])
     label_encoder = preprocessing.LabelEncoder()
-    label_encoder.fit(df['Country'])
-    y_country = label_encoder.transform(df['Country'])  # Get a numberic representation of the country names for the labels
-    country_key, country_label_list, country_list = country_key_text(label_encoder, y_country)
+    #label_encoder.fit(df['Country'])
+    label_encoder.fit(y_combined)
+    #y_country_sentiment = label_encoder.transform(df['Country'])  # Get a numberic representation of the country names for the labels
+    y_country_sentiment = label_encoder.transform(y_combined)    # get a numeric representation of the label
+    country_key, country_label_list, country_list = combined_key_text(label_encoder, y_country_sentiment)
     #y_sent = list(df["sentiment"].astype(int))
-    X_train, X_val, y_train, y_val = train_test_split(X_clean_text, y_country, test_size=0.10, random_state=1)
+    X_train, X_val, y_train, y_val = train_test_split(X_clean_text, y_country_sentiment, test_size=0.10, random_state=1)
     
     train_size = len(X_train)
     val_size = len(X_val)
     Helper.printline(f"Dataset sizes: train {train_size}, val {val_size}")
     
-    ''' s = Sentiment(df)
-    s.print_balance() '''
+    s = Sentiment(df)
+    s.print_balance()
     c = Country(df)
     c.print_balance()
 
@@ -66,13 +76,15 @@ def get_datasets():
     Helper.printline(f"Dataset sizes: train {train_size}, val {val_size}, test {test_size}")
     return train_dataset, val_dataset, test_dataset, country_key, country_label_list, country_list
 
-def country_key_text(label_encoder, y_country):
-    country_label_list = [i for i in range(max(y_country) + 1)]
-    country_list = label_encoder.inverse_transform(country_label_list)
-    country_text = [f"{i}: {country_list[i]}" for i in range(max(y_country) + 1)]
-    country_names = ", ".join(country_text)
-    country_key = f"Country key/values: {country_names}"
-    return country_key, country_label_list, country_list
+def combined_key_text(label_encoder, y_combined):
+    combined_label_list = [i for i in range(max(y_combined) + 1)]
+    combined_list = label_encoder.inverse_transform(combined_label_list)
+    for i in range(len(combined_list)):
+        combined_list[i] = combined_list[i].replace("0", "neg").replace("1", "pos") 
+    combined_text = [f"{i}: {combined_list[i]}" for i in range(max(y_combined) + 1)]
+    combined_names = ", ".join(combined_text)
+    combined_key = f"Country/ Sentiment key/values: {combined_names}"
+    return combined_key, combined_label_list, combined_list
 
 def get_dataset(labels, data_enc):
     _inputs = get_tensor(data_enc, "input_ids")

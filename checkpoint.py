@@ -21,7 +21,7 @@ def load_checkpoint(model, optimizer):
     model.load_state_dict(checkpoint["model_state_dict"])
     optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
     epoch = checkpoint["epoch"]
-    return epoch
+    return epoch, model
 
 def get_backup_filename():
     file = os.path.join(Constants.backup_dir, Constants.backup_file)

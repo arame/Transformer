@@ -1,4 +1,4 @@
-from config import Constants
+from config import Hyper
 from helper import Helper
 
 class Country:
@@ -6,7 +6,7 @@ class Country:
         self.df = df
 
     def print_balance(self):
-        for _country in Constants.selected_countries:
+        for _country in Hyper.selected_countries:
             self.print_balance_line(_country)
             
     def print_balance_line(self, _country):
