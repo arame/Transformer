@@ -93,7 +93,7 @@ def main():
     Helper.printline(f"Total training took {Helper.time_lapse(total_t0)}") 
     #---------- TESTING AND METRICS -------------# 
     show_training_stats(training_stats) 
-    test_model_for_metrics(test_dataset, combined_key, combined_label_list, combined_list, model, training_stats)
+    test_model_for_metrics(test_dataset, combined_key, combined_label_list, combined_list, model)
 
     Helper.printlines("** Ended **", 2)
 

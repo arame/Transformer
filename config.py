@@ -26,7 +26,7 @@ class Hyper:
     model_name = "bert-base-uncased"
     eps = 1e-8 
     use_pickle = False
-    is_load = True
+    is_load = False
 
     [staticmethod]
     def start():
