@@ -30,7 +30,7 @@ def training(train_dataloader, model, optimizer, scheduler, epoch):
         # For each batch of training data...
     for step, batch in enumerate(train_dataloader):
             # Progress update every 40 batches.
-        if step % 100 == 0 and not step == 0:
+        if step % Hyper.train_step == 0 and not step == 0:
                 # Calculate elapsed time in minutes.
             elapsed = Helper.format_time(time.time() - t0)
                 

@@ -10,11 +10,12 @@ class Hyper:
     '''
     total_epochs = 4
     learning_rate = 2e-5
-    batch_size = 2
+    batch_size = 8
     dropout_rate = 0.5
     #selected_countries = ["India", "United States", "United Kingdom", "South Africa", "Australia", "Canada", "Pakistan"]
     selected_countries = ["India", "United States", "United Kingdom"]
     num_labels = len(selected_countries) * 2    # The number of labels is the number of countries * number of sentiments (ie 2)
+    train_step = 2000
     # try models:
     # bert-base-uncased
     # distilbert-base-uncased
