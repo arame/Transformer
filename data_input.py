@@ -13,6 +13,7 @@ from pickle_file import Pickle
 from sklearn import preprocessing
 from charts import Chart
 from wordcloud_per_country import WordcloudCountry
+from imblearn.over_sampling import SMOTE
 
 def get_datasets():
     file = os.path.join(Constants.HyrdatedTweetLangDir, Constants.HyrdatedLangTweetFile)
@@ -24,22 +25,34 @@ def get_datasets():
     # Get the data only for the selected countries
     _query = Helper.countries_query_builder()
     df.query(_query, inplace=True)
+
     Helper.printline(f"After {df.shape[0]}")
     # show the distribution of data between countries, sentiment and both combined
     Chart.show_country_distribution(df)
     Chart.show_sentiment_distribution(df)
-    y_combined = df["Country"] + " " + df["sentiment"]
+    df["sentiment_x"] = df["sentiment"].replace(["0", "1"],["neg", "pos"], inplace=False)
+    y_combined = df["Country"] + " " + df["sentiment_x"]
+    #weights = calculate_weights(df)
     Chart.show_combined_distribution(y_combined)
     X_clean_text = list(df["clean_text"])
     label_encoder = preprocessing.LabelEncoder()
-    #label_encoder.fit(df['Country'])
     label_encoder.fit(y_combined)
-    #y_country_sentiment = label_encoder.transform(df['Country'])  # Get a numberic representation of the country names for the labels
     y_country_sentiment = label_encoder.transform(y_combined)    # get a numeric representation of the label
     country_key, country_label_list, country_list = combined_key_text(label_encoder, y_country_sentiment)
-    #y_sent = list(df["sentiment"].astype(int))
-    X_train, X_val, y_train, y_val = train_test_split(X_clean_text, y_country_sentiment, test_size=0.10, random_state=1)
-    
+
+    ''' 
+        Split data into train, val and test datasets,
+    '''
+    X_train, X_temp, y_train, y_temp = train_test_split(X_clean_text, 
+                                                      y_country_sentiment, 
+                                                      test_size=0.15, 
+                                                      random_state=42,
+                                                      stratify=y_country_sentiment)
+    X_val, X_test, y_val, y_test = train_test_split(X_temp, 
+                                                      y_temp, 
+                                                      test_size=0.33, 
+                                                      random_state=42,
+                                                      stratify=y_temp)    
     train_size = len(X_train)
     val_size = len(X_val)
     Helper.printline(f"Dataset sizes: train {train_size}, val {val_size}")
@@ -62,19 +75,42 @@ def get_datasets():
     Helper.printline("----------------------")
     t = TokensBert(X_val)
     X_val_enc = Pickle.get_content(Constants.pickle_val_encodings_file, t.encode_tweets)
-    _train_dataset = get_dataset(y_train, X_train_enc)
-    val_dataset = get_dataset(y_val, X_val_enc)
     
-    train_size = int(0.95 * len(_train_dataset))
-    test_size = len(_train_dataset) - train_size
+    Helper.printline("Encode test data")
+    Helper.printline("----------------------")
+    t = TokensBert(X_test)
+    X_test_enc = Pickle.get_content(Constants.pickle_test_encodings_file, t.encode_tweets)
+
+    train_dataset = get_dataset(y_train, X_train_enc)
+    val_dataset = get_dataset(y_val, X_val_enc)
+    test_dataset = get_dataset(y_test, X_test_enc)
 
     # Divide the dataset by randomly selecting samples.
-    train_dataset, test_dataset = random_split(_train_dataset, [train_size, test_size])
+    #train_dataset, test_dataset = random_split(_train_dataset, [train_size, test_size])
     train_size = len(train_dataset)
     val_size = len(val_dataset)
     test_size = len(test_dataset)
     Helper.printline(f"Dataset sizes: train {train_size}, val {val_size}, test {test_size}")
     return train_dataset, val_dataset, test_dataset, country_key, country_label_list, country_list
+
+def calculate_min_sample_size(y_train):
+    grouped = y_train.groupby('combined').count()
+    _temp = grouped.values[:, 0]
+    _min = min(_temp)
+    
+def calculate_weights(y_train):
+    '''
+        Calculate weights for dataset inbalance
+        See https://datascience.stackexchange.com/questions/78074/imbalanced-dataset-transformers-how-to-decide-on-class-weights
+    '''
+    grouped = y_train.groupby('combined').count()
+    _temp = grouped.values[:, 0]
+    _max = max(_temp)
+    weights = []
+    for _item in _temp:
+        weights.append(_max/_item)
+    return weights
+    
 
 def combined_key_text(label_encoder, y_combined):
     combined_label_list = [i for i in range(max(y_combined) + 1)]

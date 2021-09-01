@@ -10,10 +10,10 @@ class Hyper:
     '''
     total_epochs = 4
     learning_rate = 2e-5
-    batch_size = 8
+    batch_size = 2
     dropout_rate = 0.5
-    #selected_countries = ["India", "United States", "United Kingdom", "South Africa", "Australia", "Canada", "Pakistan"]
-    selected_countries = ["India", "United States", "United Kingdom"]
+    selected_countries = ["India", "United States", "United Kingdom", "South Africa", "Australia", "Canada", "Pakistan"]
+    #selected_countries = ["India", "United States", "United Kingdom"]
     num_labels = len(selected_countries) * 2    # The number of labels is the number of countries * number of sentiments (ie 2)
     train_step = 2000
     # try models:
@@ -87,7 +87,7 @@ class Constants:
     pickle_tokens_file = "tokens.pkl"
     pickle_train_encodings_file = "encodings_train.pkl"
     pickle_val_encodings_file = "encodings_val.pkl"
-
+    pickle_test_encodings_file = "encodings_test.pkl"
     
     tokens_max_length = 256     # reasonable maximum given tweets have a maximum of 280 characters
     word_threshold = 8
