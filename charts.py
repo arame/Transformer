@@ -107,8 +107,8 @@ class Chart:
         labels = Chart.get_labels()
         countries = ", ".join(Hyper.selected_countries)
         title = f"Confusion matrix for the countries: {countries}\n"
-        x = int(round(2.5 * Hyper.num_labels))
-        y = int(round(x * 0.7))
+        x = int(round(3 * Hyper.num_labels))
+        y = int(round(x * 0.5))
         Chart.make_confusion_matrix(matrix, group_names=labels, categories=combined_list, figsize=(x, y), title=title)
 
     def get_labels():
