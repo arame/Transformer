@@ -307,6 +307,8 @@ def test_model_for_metrics(test_dataset, combined_key, combined_label_list, comb
     # Use the F1 metric to score our classifier's performance on the test set.
     f1_score = metrics.f1_score(true_labels, predicted_labels, average='macro')
     Helper.printline(f'F1 score: {f1_score}')
+    matt_coef = metrics.matthews_corrcoef(true_labels, predicted_labels)
+    Helper.printline(f"Matthews correlation coefficient: {matt_coef}")
     
 def print_results_from_tokens(tokenizer, input_token_ids, prediction_label, true_label, country_list):
     tweet = tokenizer.decode(input_token_ids)
