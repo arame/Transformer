@@ -3,16 +3,17 @@ from config import Constants, Hyper
 from helper import Helper
 import numpy as np
 from charts import Chart
+from utility import Utility
 
 '''
-    This class uses the BertTokenizer to tokenise the tweets
+    This class uses the Bert family of tokenizers to tokenise the tweets
 '''
 class TokensBert:
     def __init__(self, df) -> None:
         self.df_tweets = df
 
     def encode_tweets(self):
-        tokenizer = Helper.get_tokenizer()
+        tokenizer = Utility.get_tokenizer()
         self.show_first_2_tweets_tokenised(tokenizer)
         # Tokenize all of the sentences and map the tokens to their word IDs.
         tweet_encodings = []

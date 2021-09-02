@@ -6,14 +6,14 @@ from helper import Helper
 from data_input import get_datasets
 from checkpoint import save_checkpoint, load_checkpoint
 from model import training, validation, test_model_for_metrics, show_training_stats
-
+from utility import Utility
 
 def main():
     Helper.printline("** Started **")
     Hyper.start()
     #---------- DATA -------------# 
     train_dataset, val_dataset, test_dataset, combined_key, combined_label_list, combined_list = get_datasets()
-    model = Helper.get_model()
+    model = Utility.get_model()
     
     # Note: AdamW is a class from the huggingface library (as opposed to pytorch) 
     # I believe the 'W' stands for 'Weight Decay fix"
