@@ -30,8 +30,8 @@ class Hyper:
     is_load = False
     is_bert = False
     is_roberta = False
-    is_distilbert = False
-    is_albert = True
+    is_distilbert = True
+    is_albert = False
 
     [staticmethod]
     def start():

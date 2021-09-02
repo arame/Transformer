@@ -115,6 +115,12 @@ def get_model_results(model, b_input_ids, b_input_mask, b_labels):
                         attention_mask=b_input_mask, 
                         labels=b_labels,
                         return_dict=True)
+    
+def get_outputs(model, b_input_ids, b_input_mask):
+    if Hyper.is_distilbert:
+        return model(b_input_ids, attention_mask=b_input_mask)
+    
+    return model(b_input_ids, token_type_ids=None, attention_mask=b_input_mask)
 
 def validation(validation_dataloader, model, training_stats, epoch, avg_train_loss, training_time):
     # ========================================
@@ -156,11 +162,7 @@ def validation(validation_dataloader, model, training_stats, epoch, avg_train_lo
                 # Forward pass, calculate logit predictions.
                 # token_type_ids is the same as the "segment ids", which 
                 # differentiates sentence 1 and 2 in 2-sentence tasks.
-            result = model(b_input_ids, 
-                            token_type_ids=None, 
-                            attention_mask=b_input_mask,
-                            labels=b_labels,
-                            return_dict=True)
+            result = get_model_results(model, b_input_ids, b_input_mask, b_labels)
 
             # Get the loss and "logits" output by the model. The "logits" are the 
             # output values prior to applying an activation function like the 
@@ -261,8 +263,7 @@ def test_model_for_metrics(test_dataset, combined_key, combined_label_list, comb
         # and speeding up prediction
         with T.no_grad():
             # Forward pass, calculate logit predictions
-            outputs = model(b_input_ids, token_type_ids=None, 
-                            attention_mask=b_input_mask)
+            outputs = get_outputs(model, b_input_ids, b_input_mask)
 
         logits = outputs[0]
 
@@ -319,9 +320,7 @@ def test_model_for_metrics(test_dataset, combined_key, combined_label_list, comb
     Helper.printline(f'F1 score: {f1_score}')
     matt_coef = metrics.matthews_corrcoef(true_labels, predicted_labels)
     Helper.printline(f"Matthews correlation coefficient: {matt_coef}")
-
-
-    
+   
 def print_results_from_tokens(tokenizer, input_token_ids, prediction_label, true_label, country_list):
     tweet = tokenizer.decode(input_token_ids)
     tweet = tweet.replace("[PAD] ", "")
