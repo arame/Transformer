@@ -1,6 +1,5 @@
 from helper import Helper
 from config import Hyper, Constants
-from transformers import BertTokenizer
 import time
 import torch as T
 import numpy as np
@@ -271,7 +270,7 @@ def test_model_for_metrics(test_dataset, combined_key, combined_label_list, comb
     predicted_labels = np.argmax(predictions, axis=1)
     
     Helper.printlines(f"Example tweets and classifications", 2)
-    tokenizer = BertTokenizer.from_pretrained(Hyper.model_name)
+    tokenizer = Helper.get_tokenizer()
     # print out up to 5 tweets, their estimated country and their actual country
     no_tweets_to_display = min(5, len(input_ids))
     for i in range(no_tweets_to_display):
@@ -309,6 +308,8 @@ def test_model_for_metrics(test_dataset, combined_key, combined_label_list, comb
     Helper.printline(f'F1 score: {f1_score}')
     matt_coef = metrics.matthews_corrcoef(true_labels, predicted_labels)
     Helper.printline(f"Matthews correlation coefficient: {matt_coef}")
+
+
     
 def print_results_from_tokens(tokenizer, input_token_ids, prediction_label, true_label, country_list):
     tweet = tokenizer.decode(input_token_ids)

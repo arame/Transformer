@@ -4,7 +4,6 @@ from helper import Helper
 import numpy as np
 from charts import Chart
 
-
 '''
     This class uses the BertTokenizer to tokenise the tweets
 '''
@@ -13,9 +12,7 @@ class TokensBert:
         self.df_tweets = df
 
     def encode_tweets(self):
-        # Load the BERT tokenizer.
-        Helper.printline(f'Loading BERT tokenizer using the {Hyper.model_name} modal...')
-        tokenizer = BertTokenizer.from_pretrained(Hyper.model_name)
+        tokenizer = Helper.get_tokenizer()
         self.show_first_2_tweets_tokenised(tokenizer)
         # Tokenize all of the sentences and map the tokens to their word IDs.
         tweet_encodings = []
@@ -54,6 +51,8 @@ class TokensBert:
         self.show_results(token_lengths)
         Helper.printline(f"** Completed encodings after {i} tweets") 
         return tweet_encodings 
+
+
 
     def show_results(self, token_lengths):
         Helper.printline(f'   Min length: {min(token_lengths)} tokens')

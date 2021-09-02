@@ -1,5 +1,5 @@
 import torch as T
-import os
+import os, sys
 
 class Hyper:
     '''For the purposes of fine-tuning, the authors recommend choosing from the following values (from Appendix A.3 of the BERT paper):
@@ -28,16 +28,56 @@ class Hyper:
     eps = 1e-8 
     use_pickle = False
     is_load = False
+    is_bert = False
+    is_roberta = False
+    is_distilbert = False
+    is_albert = True
 
     [staticmethod]
     def start():
+        Hyper.assign_model_name()
         Hyper.display()
         Hyper.check_directories()
 
+
+    [staticmethod]
+    def assign_model_name():
+        count = Hyper.is_bert + Hyper.is_roberta + Hyper.is_distilbert + Hyper.is_albert
+        if count > 1:
+            sys.exit("Only one model flag set to true is valid")
+            
+        if Hyper.is_bert:
+            Hyper.model_name = "bert-base-uncased"
+            Hyper.rename_output_files("bert")
+            return
+        
+        if Hyper.is_roberta:
+            Hyper.model_name = "roberta-base"
+            Hyper.rename_output_files("roberta")
+            return
+        
+        if Hyper.is_distilbert:
+            Hyper.model_name = "distilbert-base-uncased"
+            Hyper.rename_output_files("distilbert")
+            return 
+        
+        if Hyper.is_albert:
+            Hyper.model_name = "albert-base-v2"
+            Hyper.rename_output_files("albert")
+            return                       
+    
+    [staticmethod]
+    def rename_output_files(prefix):
+        join_name = lambda prefix, filename: prefix + "_" + filename
+        Constants.backup_file = join_name(prefix, Constants.backup_file)
+        Constants.training_validation_loss_graph = join_name(prefix, Constants.training_validation_loss_graph)
+        Constants.confususion_matrix_graph = join_name(prefix, Constants.confususion_matrix_graph)
+        
     [staticmethod]   
     def display():
         print("The Hyperparameters")
         print("-------------------")
+        print(f"Model name = {Hyper.model_name}")
         print(f"Number of epochs = {Hyper.total_epochs}")
         print(f"Learning rate = {Hyper.learning_rate}")
         print(f"Batch_size = {Hyper.batch_size}")
