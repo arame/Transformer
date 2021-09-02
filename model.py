@@ -65,11 +65,8 @@ def training(train_dataloader, model, optimizer, scheduler, epoch):
             # https://huggingface.co/transformers/main_classes/output.html#transformers.modeling_outputs.SequenceClassifierOutput
             # Specifically, we'll get the loss (because we provided labels) and the
             # "logits"--the model outputs prior to activation.
-        result = model(b_input_ids, 
-                        token_type_ids=None, 
-                        attention_mask=b_input_mask, 
-                        labels=b_labels,
-                        return_dict=True)
+        
+        result = get_model_results(model, b_input_ids, b_input_mask, b_labels)
 
         loss = result.loss
         logits = result.logits
@@ -105,6 +102,19 @@ def training(train_dataloader, model, optimizer, scheduler, epoch):
     Helper.printlines(f"  Average training loss: {avg_train_loss}", 2)
     Helper.printline(f"  Training epoch took: {training_time}")
     return avg_train_loss, training_time, model
+
+def get_model_results(model, b_input_ids, b_input_mask, b_labels):
+    if Hyper.is_distilbert:
+        return model(b_input_ids, 
+                            attention_mask=b_input_mask, 
+                            labels=b_labels,
+                            return_dict=True)
+       
+    return model(b_input_ids, 
+                        token_type_ids=None, 
+                        attention_mask=b_input_mask, 
+                        labels=b_labels,
+                        return_dict=True)
 
 def validation(validation_dataloader, model, training_stats, epoch, avg_train_loss, training_time):
     # ========================================
