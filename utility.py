@@ -3,6 +3,7 @@ from bert_model import load_bert_model, load_bert_tokeniser
 from roberta_model import load_roberta_model, load_roberta_tokeniser
 from albert_model import load_albert_model, load_albert_tokeniser
 from distilbert_model import load_distilbert_model, load_distilbert_tokeniser
+from distilbert_adv_model import load_distilbert_adv_model, load_distilbert_adv_tokeniser
 
 class Utility:
     def get_model():
@@ -19,6 +20,10 @@ class Utility:
             model = load_distilbert_model()
             return model
         
+        if Hyper.is_distilbert_adv:    
+            model = load_distilbert_adv_model()
+            return model
+
         if Hyper.is_roberta:    
             model = load_roberta_model()
             return model
@@ -39,6 +44,10 @@ class Utility:
             tokenizer = load_distilbert_tokeniser()
             return tokenizer
         
+        if Hyper.is_distilbert_adv:    
+            tokenizer = load_distilbert_adv_tokeniser()
+            return tokenizer
+                
         if Hyper.is_roberta:    
             tokenizer = load_roberta_tokeniser()
             return tokenizer

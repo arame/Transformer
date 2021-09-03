@@ -231,7 +231,7 @@ class Chart:
         if title:
             plt.title(title)
             
-        chart = Chart.get_graph_file(Constants.confususion_matrix_graph)
+        chart = Chart.get_graph_file(Constants.confusion_matrix_graph)
         plt.savefig(chart)   
         plt.close()         # Use close to ensure plt is reset for future use 
         

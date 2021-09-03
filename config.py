@@ -31,6 +31,7 @@ class Hyper:
     is_bert = False
     is_roberta = False
     is_distilbert = True
+    is_distilbert_adv = False
     is_albert = False
 
     [staticmethod]
@@ -42,9 +43,12 @@ class Hyper:
 
     [staticmethod]
     def assign_model_name():
-        count = Hyper.is_bert + Hyper.is_roberta + Hyper.is_distilbert + Hyper.is_albert
+        count = Hyper.is_bert + Hyper.is_roberta + Hyper.is_distilbert + Hyper.is_distilbert_adv + Hyper.is_albert
         if count > 1:
             sys.exit("Only one model flag set to true is valid")
+            
+        if Hyper.is_distilbert_adv and Hyper.num_labels != 2:
+            sys.exit("Model: distilbert-base-uncased-finetuned-sst-2-english does not work for multi class classification")
             
         if Hyper.is_bert:
             Hyper.model_name = "bert-base-uncased"
@@ -61,6 +65,11 @@ class Hyper:
             Hyper.rename_output_files("distilbert")
             return 
         
+        if Hyper.is_distilbert_adv:
+            Hyper.model_name = "distilbert-base-uncased-finetuned-sst-2-english"
+            Hyper.rename_output_files("distilbert_adv")
+            return
+        
         if Hyper.is_albert:
             Hyper.model_name = "albert-base-v2"
             Hyper.rename_output_files("albert")
@@ -71,7 +80,7 @@ class Hyper:
         join_name = lambda prefix, filename: prefix + "_" + filename
         Constants.backup_file = join_name(prefix, Constants.backup_file)
         Constants.training_validation_loss_graph = join_name(prefix, Constants.training_validation_loss_graph)
-        Constants.confususion_matrix_graph = join_name(prefix, Constants.confususion_matrix_graph)
+        Constants.confusion_matrix_graph = join_name(prefix, Constants.confusion_matrix_graph)
         
     [staticmethod]   
     def display():
@@ -121,7 +130,7 @@ class Constants:
     sentiment_distribution_graph = "sentiment_distribution.png"
     combined_distribution_graph = "combined_distribution.png"
     training_validation_loss_graph = "training_validation_loss.png"
-    confususion_matrix_graph = "confusion_matrix.png"
+    confusion_matrix_graph = "confusion_matrix.png"
     backup_model_dir = "../E/backup/model"
     pickle_dir = "../E/pickle"            
     pickle_tokens_file = "tokens.pkl"
