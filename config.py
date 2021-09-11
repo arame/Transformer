@@ -1,3 +1,4 @@
+from helper import Helper
 import torch as T
 import os, sys
 
@@ -79,16 +80,8 @@ class Hyper:
         if count != 1:
             sys.exit("Only one type flag set to true is valid")
 
-        type = ""
-        if Hyper.is_facemask:
-            type = "facemask"
-        
-        if Hyper.is_lockdown:
-            type = "lockdown"
-        
-        if Hyper.is_vaccine:
-            type = "vaccine"
-            
+        type = Hyper.get_type()
+        Helper.printline("Model developed for {type}s")
         Constants.HyrdatedLangTweetFile = f"{Constants.language}_{type}_tweets.csv"
         join_name = lambda type, filename: type + "_" + filename
         Constants.Tweet_length_graph = join_name(type, Constants.Tweet_length_graph)
@@ -100,6 +93,18 @@ class Hyper:
         Constants.pickle_train_encodings_file = join_name(type, Constants.pickle_train_encodings_file)
         Constants.pickle_val_encodings_file = join_name(type, Constants.pickle_val_encodings_file)
         Constants.pickle_test_encodings_file = join_name(type, Constants.pickle_test_encodings_file)
+
+    def get_type():
+        if Hyper.is_facemask:
+            return "facemask"
+        
+        if Hyper.is_lockdown:
+            return "lockdown"
+        
+        if Hyper.is_vaccine:
+            return "vaccine"
+        
+        return ""
     
     [staticmethod]
     def rename_output_files(prefix):
