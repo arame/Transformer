@@ -6,23 +6,22 @@ from helper import Helper
 from data_input import get_datasets
 from checkpoint import save_checkpoint, load_checkpoint
 from model import training, validation, test_model_for_metrics, show_training_stats
-from utility import Utility
+from utility import Selector
 
 def main():
     Helper.printline("** Started **")
     Hyper.start()
     #---------- DATA -------------# 
     train_dataset, val_dataset, test_dataset, combined_key, combined_label_list, combined_list = get_datasets()
-    model = Utility.get_model()
+    model = Selector.get_model()
     
     # Note: AdamW is a class from the huggingface library (as opposed to pytorch) 
-    # I believe the 'W' stands for 'Weight Decay fix"
+    # 'W' stands for 'Weight Decay fix"
     optimizer = AdamW(model.parameters(),
                   lr = Hyper.learning_rate, # args.learning_rate - default is 5e-5, in the Hyper class we use 2e-5
                   eps = Hyper.eps           # args.adam_epsilon  - default is 1e-8 which we also use.
                 )
-                
-    
+
     if Hyper.is_load:
         # The model has been trained, but we want to test it again
         epoch, model = load_checkpoint(model, optimizer)
@@ -96,7 +95,7 @@ def main():
 def show_model_stats(model):
     # Get all of the model's parameters as a list of tuples.
     params = list(model.named_parameters())
-    Helper.printline(f'The BERT model has {len(params)} different named parameters.\n')
+    Helper.printline(f'The {Hyper.model_name_short} model has {len(params)} different named parameters.\n')
     Helper.printline('==== Embedding Layer ====\n')
     for p in params[0:5]:
         show_first_2_parameters(p)

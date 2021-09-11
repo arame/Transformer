@@ -3,7 +3,7 @@ from helper import Helper
 
 def main():
     # Load the BERT tokenizer.
-    Helper.printline('Loading BERT tokenizer...')
+    Helper.printline(f'Loading BERT tokenizer...')
     tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
 
     text = "I got the Corona virus. That was Jack's fault. covidiots"

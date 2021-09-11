@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn import metrics
 from charts import Chart
 from torch.utils.data import DataLoader, SequentialSampler
-from utility import Utility
+from utility import Selector
 
 def training(train_dataloader, model, optimizer, scheduler, epoch):
     # ========================================
@@ -43,7 +43,7 @@ def training(train_dataloader, model, optimizer, scheduler, epoch):
             # `to` method.
             #
             # `batch` contains three pytorch tensors:
-            #   [0]: input ids 
+            #   [0]: input ids
             #   [1]: attention masks
             #   [2]: labels 
         b_input_ids = batch[0].to(Constants.device)
@@ -282,7 +282,7 @@ def test_model_for_metrics(test_dataset, combined_key, combined_label_list, comb
     predicted_labels = np.argmax(predictions, axis=1)
     
     Helper.printlines(f"Example tweets and classifications", 2)
-    tokenizer = Utility.get_tokenizer()
+    tokenizer = Selector.get_tokenizer()
     # print out up to 5 tweets, their estimated country and their actual country
     no_tweets_to_display = min(5, len(input_ids))
     for i in range(no_tweets_to_display):

@@ -3,7 +3,7 @@ from config import Constants, Hyper
 from helper import Helper
 import numpy as np
 from charts import Chart
-from utility import Utility
+from utility import Selector
 
 '''
     This class uses the Bert family of tokenizers to tokenise the tweets
@@ -13,7 +13,7 @@ class TokensBert:
         self.df_tweets = df
 
     def encode_tweets(self):
-        tokenizer = Utility.get_tokenizer()
+        tokenizer = Selector.get_tokenizer()
         self.show_first_2_tweets_tokenised(tokenizer)
         # Tokenize all of the sentences and map the tokens to their word IDs.
         tweet_encodings = []

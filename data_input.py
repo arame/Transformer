@@ -4,7 +4,7 @@ from tokens_bert import TokensBert
 import pandas as pd
 import os
 import torch as T
-from torch.utils.data import TensorDataset, random_split
+from torch.utils.data import TensorDataset
 from sklearn.model_selection import train_test_split
 from config import Constants
 from helper import Helper
@@ -46,12 +46,12 @@ def get_datasets():
     X_train, X_temp, y_train, y_temp = train_test_split(X_clean_text, 
                                                       y_country_sentiment, 
                                                       test_size=0.15, 
-                                                      random_state=42,
+                                                      random_state=Constants.seed_val,
                                                       stratify=y_country_sentiment)
     X_val, X_test, y_val, y_test = train_test_split(X_temp, 
                                                       y_temp, 
                                                       test_size=0.33, 
-                                                      random_state=42,
+                                                      random_state=Constants.seed_val,
                                                       stratify=y_temp)    
     train_size = len(X_train)
     val_size = len(X_val)
@@ -62,7 +62,7 @@ def get_datasets():
     c = Country(df)
     c.print_balance()
 
-    # Load the BERT tokenizer.
+    # Load the transformer tokenizer.
     # The Pickle.get_content method loads the content from the pickle file if it exists
     # or otherwise it tokenises the input from the Bert tokeniser and saves the results in the pickle file
     # 
