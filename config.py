@@ -12,8 +12,8 @@ class Hyper:
     learning_rate = 2e-5
     batch_size = 2
     dropout_rate = 0.5
-    selected_countries = ["India", "United States", "United Kingdom", "South Africa", "Australia", "Canada", "Pakistan"]
-    #selected_countries = ["India", "United States", "United Kingdom"]
+    #selected_countries = ["India", "United States", "United Kingdom", "South Africa", "Australia", "Canada", "Pakistan"]
+    selected_countries = ["India", "United States", "United Kingdom"]
     num_labels = len(selected_countries) * 2    # The number of labels is the number of countries * number of sentiments (ie 2)
     train_step = 2000
     # try models:
@@ -21,59 +21,85 @@ class Hyper:
     # distilbert-base-uncased
     # roberta-base
     # albert-base-v2
-    # The following are trained for text classification:
-    # distilbert-base-uncased-finetuned-sst-2-english (most used on HF for text clasification)
-    # bhadresh-savani/distilbert-base-uncased-emotion - use for emotions; joy, sadness, love, anger, fear, surprise
     model_name = "bert-base-uncased"
+    model_name_short = "BERT"
     eps = 1e-8 
     use_pickle = False
-    is_load = False
-    is_bert = False
+    is_load = False     # Load model stored as PKL
+    is_bert = True
     is_roberta = False
-    is_distilbert = True
-    is_distilbert_adv = False
+    is_distilbert = False
     is_albert = False
+    
+    is_facemask = False
+    is_lockdown = False
+    is_vaccine = True
 
     [staticmethod]
     def start():
         Hyper.assign_model_name()
+        Hyper.assign_type_dir()
         Hyper.display()
         Hyper.check_directories()
 
 
     [staticmethod]
     def assign_model_name():
-        count = Hyper.is_bert + Hyper.is_roberta + Hyper.is_distilbert + Hyper.is_distilbert_adv + Hyper.is_albert
-        if count > 1:
+        count = Hyper.is_bert + Hyper.is_roberta + Hyper.is_distilbert + Hyper.is_albert
+        if count != 1:
             sys.exit("Only one model flag set to true is valid")
-            
-        if Hyper.is_distilbert_adv and Hyper.num_labels != 2:
-            sys.exit("Model: distilbert-base-uncased-finetuned-sst-2-english does not work for multi class classification")
-            
+
         if Hyper.is_bert:
             Hyper.model_name = "bert-base-uncased"
+            Hyper.model_name_short = "BERT"
             Hyper.rename_output_files("bert")
             return
         
         if Hyper.is_roberta:
             Hyper.model_name = "roberta-base"
+            Hyper.model_name_short = "ROBERTA"
             Hyper.rename_output_files("roberta")
             return
         
         if Hyper.is_distilbert:
             Hyper.model_name = "distilbert-base-uncased"
+            Hyper.model_name_short = "DISTILBERT"
             Hyper.rename_output_files("distilbert")
             return 
         
-        if Hyper.is_distilbert_adv:
-            Hyper.model_name = "distilbert-base-uncased-finetuned-sst-2-english"
-            Hyper.rename_output_files("distilbert_adv")
-            return
-        
         if Hyper.is_albert:
             Hyper.model_name = "albert-base-v2"
+            Hyper.model_name_short = "ALBERT"
             Hyper.rename_output_files("albert")
-            return                       
+            return  
+        
+    [staticmethod]
+    def assign_type_dir():
+        count = Hyper.is_facemask + Hyper.is_lockdown + Hyper.is_vaccine
+        if count != 1:
+            sys.exit("Only one type flag set to true is valid")
+
+        type = ""
+        if Hyper.is_facemask:
+            type = "facemask"
+        
+        if Hyper.is_lockdown:
+            type = "lockdown"
+        
+        if Hyper.is_vaccine:
+            type = "vaccine"
+            
+        Constants.HyrdatedLangTweetFile = f"{Constants.language}_{type}_tweets.csv"
+        join_name = lambda type, filename: type + "_" + filename
+        Constants.Tweet_length_graph = join_name(type, Constants.Tweet_length_graph)
+        Constants.country_distribution_graph = join_name(type, Constants.country_distribution_graph)
+        Constants.sentiment_distribution_graph = join_name(type, Constants.sentiment_distribution_graph)        
+        Constants.combined_distribution_graph = join_name(type, Constants.combined_distribution_graph)
+        Constants.training_validation_loss_graph = join_name(type, Constants.training_validation_loss_graph) 
+        Constants.confusion_matrix_graph = join_name(type, Constants.confusion_matrix_graph)
+        Constants.pickle_train_encodings_file = join_name(type, Constants.pickle_train_encodings_file)
+        Constants.pickle_val_encodings_file = join_name(type, Constants.pickle_val_encodings_file)
+        Constants.pickle_test_encodings_file = join_name(type, Constants.pickle_test_encodings_file)
     
     [staticmethod]
     def rename_output_files(prefix):
@@ -97,6 +123,7 @@ class Hyper:
         
     [staticmethod]
     def check_directories():
+        Hyper.check_directory(Constants.rootdir)
         Hyper.check_directory(Constants.backup_dir)
         Hyper.check_directory(Constants.backup_model_dir)
         Hyper.check_directory(Constants.images_dir)
@@ -111,28 +138,29 @@ class Hyper:
 class Constants:
     device = T.device("cuda" if T.cuda.is_available() else "cpu")
     # Data_en_2021_08_08 22_58_57
-    date = "2021_08_23"
-    version = 15
+    date = "2021_09_08A11_07_46"
     language = "en"
-    #HyrdatedTweetLangDir = f"../Data_{language}_{date}"
-    HyrdatedTweetLangDir = f"../E/Summary_{language}_{date}"
-    HyrdatedLangTweetFile = f"{language}_lockdown_tweets.csv"
+    HyrdatedTweetLangDir = f"../Data_{language}_{date}"
+    #HyrdatedTweetLangDir = f"../E/Summary_{language}_{date}"
+    HyrdatedLangTweetFile = f"{language}_vaccine_tweets.csv"
+    #HyrdatedLangTweetFile = f"{language}_lockdown_tweets.csv"
     #HyrdatedLangTweetFile = f"{language}_facemask_tweets.csv"
     POSITIVE = 1
     NEGATIVE = 0
     load_model = False
     save_model = True
-    backup_dir = "../E/backup"
+    rootdir = "F"
+    backup_dir = f"../{rootdir}/backup"
     backup_file = "model.pt"
-    images_dir = "../E/Images"
+    images_dir = f"../{rootdir}/Images"
     Tweet_length_graph = "tweet_length.png"
     country_distribution_graph = "country_distribution.png"
     sentiment_distribution_graph = "sentiment_distribution.png"
     combined_distribution_graph = "combined_distribution.png"
     training_validation_loss_graph = "training_validation_loss.png"
     confusion_matrix_graph = "confusion_matrix.png"
-    backup_model_dir = "../E/backup/model"
-    pickle_dir = "../E/pickle"            
+    backup_model_dir = f"../{rootdir}/backup/model"
+    pickle_dir = f"../{rootdir}/pickle"            
     pickle_tokens_file = "tokens.pkl"
     pickle_train_encodings_file = "encodings_train.pkl"
     pickle_val_encodings_file = "encodings_val.pkl"
