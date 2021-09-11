@@ -1,4 +1,3 @@
-from helper import Helper
 import torch as T
 import os, sys
 
@@ -81,7 +80,7 @@ class Hyper:
             sys.exit("Only one type flag set to true is valid")
 
         type = Hyper.get_type()
-        Helper.printline("Model developed for {type}s")
+        print("Model developed for {type}s")
         Constants.HyrdatedLangTweetFile = f"{Constants.language}_{type}_tweets.csv"
         join_name = lambda type, filename: type + "_" + filename
         Constants.Tweet_length_graph = join_name(type, Constants.Tweet_length_graph)
