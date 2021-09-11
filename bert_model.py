@@ -15,7 +15,7 @@ def load_bert_model():
 
     return model
 
-def load_bert_tokeniser(self):
+def load_bert_tokeniser():
     # Load the BERT tokenizer.
     Helper.printline(f'Loading {Hyper.model_name_short} tokenizer using {Hyper.model_name} ...')
     tokenizer = BertTokenizer.from_pretrained(Hyper.model_name)
