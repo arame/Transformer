@@ -12,8 +12,9 @@ class Hyper:
     learning_rate = 2e-5
     batch_size = 2
     dropout_rate = 0.5
-    #selected_countries = ["India", "United States", "United Kingdom", "South Africa", "Australia", "Canada", "Pakistan"]
-    selected_countries = ["India", "United States", "United Kingdom"]
+    #selected_countries = ["India", "United States", "United Kingdom", "South Africa", "Australia", "Canada", "Pakistan", "Ireland"]
+    selected_countries = ["India", "United States", "United Kingdom", "Australia", "Canada"]
+    #selected_countries = ["India", "United States", "United Kingdom"]
     num_labels = len(selected_countries) * 2    # The number of labels is the number of countries * number of sentiments (ie 2)
     train_step = 2000
     # try models:
@@ -93,6 +94,7 @@ class Hyper:
         Constants.pickle_val_encodings_file = join_name(type, Constants.pickle_val_encodings_file)
         Constants.pickle_test_encodings_file = join_name(type, Constants.pickle_test_encodings_file)
 
+    [staticmethod]
     def get_type():
         if Hyper.is_facemask:
             return "facemask"

@@ -95,7 +95,8 @@ class Chart:
         plt.close()         # Use close to ensure plt is reset for future use 
         
     def show_wordcloud(wordcloud, country):
-        filename = f"wordcloud_{country}.png"
+        type = Hyper.get_type()
+        filename = f"{type}_wordcloud_{country}.png"
         wordcloudfig = os.path.join(Constants.images_dir, filename)
         plt.title(f"Word cloud for {country}")
         plt.imshow(wordcloud, interpolation='bilinear')
