@@ -13,7 +13,8 @@ class Hyper:
     batch_size = 2
     dropout_rate = 0.5
     #selected_countries = ["India", "United States", "United Kingdom", "South Africa", "Australia", "Canada", "Pakistan", "Ireland"]
-    selected_countries = ["India", "United States", "United Kingdom", "Australia", "Canada"]
+    selected_countries = ["India", "United States", "United Kingdom", "Australia", "Canada", 
+                          "Ireland", "Uganda", "South Africa", "Malaysia"]
     #selected_countries = ["India", "United States", "United Kingdom"]
     num_labels = len(selected_countries) * 2    # The number of labels is the number of countries * number of sentiments (ie 2)
     train_step = 2000
@@ -25,6 +26,7 @@ class Hyper:
     model_name = "bert-base-uncased"
     model_name_short = "BERT"
     eps = 1e-8 
+    l2 = 0.01
     use_pickle = False
     is_load = False     # Load model stored as PKL
     is_bert = True
@@ -32,9 +34,9 @@ class Hyper:
     is_distilbert = False
     is_albert = False
     
-    is_facemask = False
+    is_facemask = True
     is_lockdown = False
-    is_vaccine = True
+    is_vaccine = False
 
     [staticmethod]
     def start():
@@ -81,7 +83,7 @@ class Hyper:
             sys.exit("Only one type flag set to true is valid")
 
         type = Hyper.get_type()
-        print("Model developed for {type}s")
+        print(f"Model developed for {type}s")
         Constants.HyrdatedLangTweetFile = f"{Constants.language}_{type}_tweets.csv"
         join_name = lambda type, filename: type + "_" + filename
         Constants.Tweet_length_graph = join_name(type, Constants.Tweet_length_graph)
@@ -129,7 +131,7 @@ class Hyper:
         
     [staticmethod]
     def check_directories():
-        Hyper.check_directory(Constants.rootdir)
+        Hyper.check_directory("../" + Constants.rootdir)
         Hyper.check_directory(Constants.backup_dir)
         Hyper.check_directory(Constants.backup_model_dir)
         Hyper.check_directory(Constants.images_dir)
@@ -144,7 +146,9 @@ class Hyper:
 class Constants:
     device = T.device("cuda" if T.cuda.is_available() else "cpu")
     # Data_en_2021_08_08 22_58_57
-    date = "2021_09_08A11_07_46"
+    #date = "2021_09_08A11_07_46"
+    #date = "2021_08_08 22_58_57"
+    date = "2021_09_16A06_03_03"
     language = "en"
     HyrdatedTweetLangDir = f"../Data_{language}_{date}"
     #HyrdatedTweetLangDir = f"../E/Summary_{language}_{date}"
@@ -155,7 +159,10 @@ class Constants:
     NEGATIVE = 0
     load_model = False
     save_model = True
-    rootdir = "F"
+    #######################################
+    # dates 09 June 2021 - 11 June 2021
+    rootdir = "June2021Face"
+    #######################################
     backup_dir = f"../{rootdir}/backup"
     backup_file = "model.pt"
     images_dir = f"../{rootdir}/Images"
